@@ -23,30 +23,22 @@ class TaskService {
                                         'CompleteByDateTime, CompletedDateTime'
         ];
     
-        echo "Scanning Tasks table.\n";
-    
         try {
-            while (true) {
-                $result = $client->scan($params);
-    
-                foreach ($result['Items'] as $i) {
-                    $task = $marshaler->unmarshalItem($i);
-                    echo $task['TaskId'] . ': ' . $task['Description'] . 
-                           ': complete by: ' . $task['CompleteByDateTime'] . 
-                            ', Completed?: ' . $task['Completed'] . 
-                            ', Time completed: ' . $task['CompletedDateTime'] . "\n";
-                }
-    
-                if (isset($result['LastEvaluatedKey'])) {
-                    $params['ExclusiveStartKey'] = $result['LastEvaluatedKey'];
-                } else {
-                    break;
-                }
+            $result = $client->scan($params);
+            
+            $tasks = array();
+                 
+            foreach ($result['Items'] as $i) {
+                $task = $marshaler->unmarshalItem($i);
+                 
+                $tasks[] = $task;
             }
         } catch (DynamoDbException $e) {
                 echo "Unable to scan:\n";
                 echo $e->getMessage() . "\n";
         }
+
+        return $tasks;
     }
 }
 
