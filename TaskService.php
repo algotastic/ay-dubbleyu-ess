@@ -8,28 +8,38 @@ use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Aws\DynamoDb\Marshaler;
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 class TaskService {
-    public function getAllTasks() {    
-        $client = new DynamoDbClient([
+    
+    private $client;
+    private $marshaler;
+    public static $tableName = 'Tasks';
+    
+    public function __construct() {
+        $this->client = new DynamoDbClient([
             'region' => 'us-east-2',
             'version' => 'latest'
         ]);
-    
-        $marshaler = new Marshaler();
-    
+        $this->marshaler = new Marshaler();
+    }
+
+    public function getAllTasks() {    
         $params = [
-            'TableName' => 'Tasks',
+            'TableName' => self::$tableName,
             'ProjectionExpression' => 'TaskId, Description, Completed, ' .
                                         'CompleteByDateTime, CompletedDateTime'
         ];
     
         try {
-            $result = $client->scan($params);
+            $result = $this->client->scan($params);
             
             $tasks = array();
                  
             foreach ($result['Items'] as $i) {
-                $task = $marshaler->unmarshalItem($i);
+                $task = $this->marshaler->unmarshalItem($i);
                  
                 $tasks[] = $task;
             }
@@ -39,6 +49,60 @@ class TaskService {
         }
 
         return $tasks;
+    }
+
+    public function getTask($taskId) {
+        $key = $this->marshaler->marshalJson('
+            {
+                "TaskId": "' . $taskId . '"
+            }
+        ');
+
+        $params = [
+            'TableName' => self::$tableName,
+            'Key' => $key
+        ];
+
+        try {
+            $result = $this->client->getItem($params);
+            print_r($result["Item"]);
+        } catch(DynamoDbException $e) {
+            echo "Unable to get task:\n";
+            echo $e->getMessage() . "\n";
+        }
+    }
+
+    public function toggleComplete($taskId) {
+        $task = $this->getTask($taskId);
+        $key = $this->marshaler->marshalJson('
+                {
+                    "TaskId": "' . $taskId . '"
+                }
+        '); 
+        
+        $eav = $this->marshaler->marshalJson('
+                {
+                    ":c": ' . !$task['Completed'] . '
+                }
+        ');
+
+        $params = [
+            'TableName' => self::$tableName,
+            'Key' => $key,
+            'UpdateExpression' =>
+                'set Completed = :c',
+            'ExpressionAttributeValues' => $eav,
+            'ReturnValues' => 'UPDATED_NEW'
+        ];
+    
+        try {
+            $result = $this->client->updateItem($params);
+            echo "Updated task.\n";
+            print_r($result['Attributes']);
+        } catch (DynamoDbException $e) {
+            echo "Unable to update task:\n";
+            echo $e->getMessage() . "\n";
+        }
     }
 }
 
