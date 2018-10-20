@@ -29,8 +29,7 @@ class TaskService {
     public function getAllTasks() {    
         $params = [
             'TableName' => self::$tableName,
-            'ProjectionExpression' => 'TaskId, Description, Completed, ' .
-                                        'CompleteByDateTime, CompletedDateTime'
+            'ProjectionExpression' => 'TaskId, Description, Completed'
         ];
     
         try {
@@ -65,15 +64,14 @@ class TaskService {
 
         try {
             $result = $this->client->getItem($params);
-            print_r($result["Item"]);
+            return $result["Item"];
         } catch(DynamoDbException $e) {
             echo "Unable to get task:\n";
             echo $e->getMessage() . "\n";
         }
     }
 
-    public function toggleComplete($taskId) {
-        $task = $this->getTask($taskId);
+    public function setComplete($taskId, $value) {
         $key = $this->marshaler->marshalJson('
                 {
                     "TaskId": "' . $taskId . '"
@@ -82,7 +80,7 @@ class TaskService {
         
         $eav = $this->marshaler->marshalJson('
                 {
-                    ":c": ' . !$task['Completed'] . '
+                    ":c": ' . $value . '
                 }
         ');
 
@@ -97,8 +95,7 @@ class TaskService {
     
         try {
             $result = $this->client->updateItem($params);
-            echo "Updated task.\n";
-            print_r($result['Attributes']);
+            return $result['Attributes'];
         } catch (DynamoDbException $e) {
             echo "Unable to update task:\n";
             echo $e->getMessage() . "\n";

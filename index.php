@@ -7,10 +7,12 @@
 <html>
     <head>
         <script
-  src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous"></script>
+            src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
         <script type="text/javascript" src="form.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body>
         <h1>TO DO</h1>
@@ -24,12 +26,9 @@
             <table class="table">
                 <thead class="thead-dark">
                     <tr>
-                        <th>Done</th>
+                        <th>Tasks</th>
                         <th>Task ID</th>
                         <th>Checked</th>
-                        <th>Description</th>
-                        <th>Complete By</th>
-                        <th>Completed At</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,10 +39,13 @@
                         <td>
                             <input id="<?php echo $taskId ?>" 
                                    name="completed[<?php echo $taskId ?>]"
-                                   value="checked" 
+                                   value="true" 
                                    class="completed"
                                    type="checkbox" 
                                    <?php echo ($checked); ?>>
+                            <label for="completed[<?php echo $taskId ?>]">
+                                <?php echo $task['Description'] ?>
+                            </label>
                         </td>
                         <td>
                             <?php echo $taskId ?>
@@ -51,15 +53,6 @@
                         <td>
                             <?php echo $checked ?>
                         </td>
-                        <td> 
-                            <?php echo $task['Description'] ?>
-                        </td>
-                        <td>
-                            <?php echo $task['CompleteByDateTime'] ?>
-                        </td> 
-                        <td>
-                            <?php echo $task['CompletedDateTime'] ?>
-                        </td> 
                     </tr>
                 <?php } ?>
                 </tbody>

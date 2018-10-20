@@ -20,12 +20,10 @@ var TASKS = (function($, TASKS) {
                     return $(this).prop('checked') === false
                 }),
                 function(idx, el) {
-                    var emptyVal = '';
+                    var emptyVal = 'false';
                     serializedData += '&' + $(el).attr('name') + '=' + emptyVal;
                 }
             );
-
-            console.log(serializedData);
 
             $inputs.prop('disabled', true);
 
@@ -36,11 +34,13 @@ var TASKS = (function($, TASKS) {
             });
 
             request.done(function(response) {
+                console.log('done! response:');
                 console.log(response);
                 $('#output').html(response);
             });
 
             request.fail(function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.responseText);
                 console.error('The following error occurred: ' +
                                 textStatus, errorThrown);
                 $('#output').html('Bummer: there was an error!');
