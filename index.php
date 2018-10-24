@@ -51,7 +51,9 @@
                             <?php echo $taskId ?>
                         </td>
                         <td>
-                            <?php echo $checked ?>
+                        <?php if ($checked) { ?>
+                            <img src="https://s3.us-east-2.amazonaws.com/tj-tasks-php/check.png" />
+                        <?php } ?>
                         </td>
                     </tr>
                 <?php } ?>
