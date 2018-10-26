@@ -52,7 +52,7 @@
                         </td>
                         <td>
                         <?php if ($checked) { ?>
-                            <img src="http://static.adamtjaden.cloud/check.png" />
+                            <img src="https://static.adamtjaden.cloud/check.png" />
                         <?php } ?>
                         </td>
                     </tr>
